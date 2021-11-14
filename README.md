@@ -1,0 +1,3 @@
+# COVIDiSTRESS2_belief_scales
+Testing measurement invariance
+Conducting measurement alignment

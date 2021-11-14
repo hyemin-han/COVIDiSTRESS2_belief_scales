@@ -1,0 +1,126 @@
+---
+title: "2_antiexpert"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r message=FALSE, warning=FALSE}
+# load libraries
+if (!require("pacman")){
+  install.packages("pacman")
+}
+pacman::p_load(tidyverse, 
+               rio, 
+               psych, 
+               car,
+               lavaan,
+               sirt,
+               here)
+# set the current directory
+here::i_am('README.md')
+here::here()
+#memory.limit(size=56000) #you might have to increase your memory limit
+```
+
+
+# Data + variables          
+
+  Load clean data (from qualtrics). For codebook see: https://osf.io/gcek7/
+  
+```{r message=FALSE, warning=FALSE}
+# load data
+dat <- import(here("_cleandata/Final_COVIDiSTRESS_Vol2_cleaned.csv")) 
+
+# rename education levels
+dat$education[dat$education == "University degree (e.g., MA, MSc, BA, BSc)"] <- "University degree"
+dat$education[dat$education == "Some University or equivalent \r\n(still ongoing, or completed a module or more, but did not graduate)"] <- "Some University"
+```  
+* focusing on conspiracy items
+* Extracting data only from where language n ≥ 100
+* set variables of interest
+
+```{r message=FALSE, warning=FALSE}
+# set variables of interest
+variables <- c('antiexpert_1','antiexpert_2','antiexpert_3')
+
+# extract only columns of interest for measurement invariance test
+# language and conspiracy items
+dat_anti<- dat %>% dplyr::select(UserLanguage, #subset df
+                        contains("antiexpert"),
+                        -contains("NAppl"))
+# drop nas
+dat_anti <- na.omit(dat_anti)
+
+# filter out languages where N < 100
+# let's move on to MI test across languages
+table(dat_anti$UserLanguage)
+# shall be >= 100
+# extract 24 languages where N >= 100
+n.langs <- table(dat_anti$UserLanguage)
+list.langs <- labels(n.langs)[[1]]
+langs.include <- list.langs[n.langs>=100]
+n.include <- n.langs[n.langs>=100]
+
+
+# extract data
+for (i in 1:length(langs.include)){
+  if (i == 1){
+    dat_mi <- dat_anti[dat_anti$UserLanguage == langs.include[i],]
+  }else{
+    current <- dat_anti[dat_anti$UserLanguage == langs.include[i],]
+    dat_mi <- rbind(dat_mi,current)
+  }
+}
+# final N = 12939 from 24 languages
+```
+
+* do meausurement invariance test
+```{r message=FALSE, warning=FALSE}
+# cronbach's alpha = good
+psych::alpha(dat_mi[,variables])
+
+# model setting
+cfa.model<-'
+ANTI =~ antiexpert_1 + antiexpert_2+antiexpert_3'
+indices <- c('rmsea','srmr','cfi','tli')
+
+# configural invariance
+# DWLS preferred with 5+ categories (Christine DiStefano & Grant B. Morgan 2014)
+fit.configural <- cfa(cfa.model, dat_mi, estimator = 'DWLS', group='UserLanguage')
+# fit indices
+fitMeasures(fit.configural)[indices]
+
+# good, then metric
+fit.metric <- cfa(cfa.model, dat_mi, estimator = 'DWLS', group='UserLanguage',
+                  group.equal='loadings')
+fitMeasures(fit.metric)[indices]
+
+# see increase
+fitMeasures(fit.metric)[indices]-fitMeasures(fit.configural)[indices]
+# not good. measurement alignment is needed
+```
+* configural invariance was not achieve despite good consistency
+* try measurement alignment
+```{r message=FALSE, warning=FALSE}
+# extract parameters
+par <- invariance_alignment_cfa_config(dat = dat_mi[,variables], 
+                                       group = dat_mi$UserLanguage)
+
+# do alignment
+mod2 <- invariance.alignment(lambda = par$lambda, nu =
+        par$nu, align.scale = c(0.2, 0.4), align.pow = c(0.25, 0.25))
+# test performance
+mod2$es.invariance['R2',]
+```
+* save result
+* mod1 will be used for further correlational analysis
+* with compliance, vaccine intent, misperception...
+```{r message=FALSE, warning=FALSE}
+save.image('2_antiexpert.RData')
+```
+
