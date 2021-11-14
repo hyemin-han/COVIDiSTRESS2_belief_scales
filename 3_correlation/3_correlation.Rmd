@@ -1,0 +1,152 @@
+---
+title: "3_correlation"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r message=FALSE, warning=FALSE}
+# load libraries
+if (!require("pacman")){
+  install.packages("pacman")
+}
+pacman::p_load(tidyverse, 
+               rio, 
+               psych, 
+               car,
+               lavaan,
+               sirt,
+               here,
+               MASS,
+               BayesFactor)
+# set the current directory
+here::i_am('README.md')
+here::here()
+#memory.limit(size=56000) #you might have to increase your memory limit
+```
+
+
+# Data + variables          
+
+  Load clean data (from qualtrics). For codebook see: https://osf.io/gcek7/
+  
+```{r message=FALSE, warning=FALSE}
+# load data
+dat <- import(here("_cleandata/Final_COVIDiSTRESS_Vol2_cleaned.csv")) 
+
+# rename education levels
+dat$education[dat$education == "University degree (e.g., MA, MSc, BA, BSc)"] <- "University degree"
+dat$education[dat$education == "Some University or equivalent \r\n(still ongoing, or completed a module or more, but did not graduate)"] <- "Some University"
+```  
+
+* load two measurement alignment results
+* mod1 = conspiracy
+* mod2 = antiexpert
+
+```{r message=FALSE, warning=FALSE}
+# load files
+load(here('1_conspiracy/1_conspiracy.RData'))
+load(here('2_antiexpert/2_antiexpert.Rdata'))
+```
+
+* extract required data
+* conspiracy, antiexpert, misperception, compliance, vaccine intent
+```{r message=FALSE, warning=FALSE}
+# extract variables of interest
+dat_cor<- dat %>% dplyr::select(UserLanguage, #subset df
+                        contains("antiexpert"),
+                        contains("conspirational_think"),
+                        contains("vaccine_midneutral"),
+                        contains("compliance"),
+                        contains('misperception'),
+                        -contains("NAppl"))
+
+# calc misperception mean
+dat_cor$misperception_m <- with(dat_cor, rowMeans(dat %>% dplyr::select(
+                            contains('misperception')
+                            ),na.rm=T))
+```
+
+* do measurement alignment
+```{r message=FALSE, warning=FALSE}
+# define items to be aligned
+variables.consp <- c('conspirational_think_1','conspirational_think_2',
+          'conspirational_think_3','conspirational_think_4')
+variables.anti <- c('antiexpert_1','antiexpert_2','antiexpert_3')
+
+# function to estimate factor score with
+# loadings (lambda.aligned) and intercepts (nu.aligned)
+# through inverse matrix
+aligned.factor.scores <- function(lambda,nu,y){
+  # calculate inverse matrix
+  lambda1 <- ginv((lambda))
+  # create matrix for nu
+  ns <- nrow(y)
+  nus <- matrix(nu,nrow=ns,ncol=length(nu),byrow=T)
+  # y - nu
+  y_nu <- y - nus
+  # f = inv(lambda)*(y-nu)
+  F <- lambda1 %*% t(as.matrix(y_nu))
+}
+# calculate score for each country
+for (i in 1:length(langs.include)){
+  if (i == 1){
+    # create new matrix
+    data.aligned <- dat_cor[dat_cor$UserLanguage==langs.include[i],]
+    # aligned factor score
+    F <- aligned.factor.scores(mod1$lambda.aligned[i,],
+          mod1$nu.aligned[i,],
+          dat_cor[dat_cor$UserLanguage==langs.include[i],variables.consp])
+    data.aligned$consp <- t(F)
+    F <- aligned.factor.scores(mod2$lambda.aligned[i,],
+          mod2$nu.aligned[i,],
+          dat_cor[dat_cor$UserLanguage==langs.include[i],variables.anti])
+    data.aligned$anti <- t(F)
+  }else
+  {
+    # bind
+    current <- dat_cor[dat_cor$UserLanguage==langs.include[i],]
+    F <- aligned.factor.scores(mod1$lambda.aligned[i,],
+            mod1$nu.aligned[i,],
+            current[,variables.consp])
+    current$consp <- t(F)
+    F <- aligned.factor.scores(mod2$lambda.aligned[i,],
+            mod2$nu.aligned[i,],
+            current[,variables.anti])
+    current$anti <- t(F)
+    data.aligned <- rbind(data.aligned,current)
+  }
+}
+
+```
+
+* see correlation
+```{r message=FALSE, warning=FALSE}
+# defined variables
+variables.cor <- c('consp','anti','misperception_m','vaccine_midneutral',
+                   'compliance_1','compliance_2','compliance_3','compliance_4',
+                   'compliance_5','compliance_6','compliance_7')
+
+# frequentist correlation
+psych::corr.test(data.aligned[,variables.cor])
+
+# bayesian correlation
+# BF matrix
+BFs <- matrix(nrow=length(variables.cor),ncol=length(variables.cor))
+for (i in 1:(length(variables.cor)-1)){
+  for (j in (i+1):(length(variables.cor))){
+    # calculate BF
+    nowBF <- correlationBF(data.aligned[,variables.cor[i]],
+                           data.aligned[,variables.cor[j]])
+    BFs[i,j] <- nowBF@bayesFactor$bf
+  }
+}
+colnames(BFs)<-variables.cor
+rownames(BFs)<-variables.cor[1: length(variables.cor)]
+
+BFs
+```
