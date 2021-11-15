@@ -1,0 +1,113 @@
+---
+title: "0_descriptive"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r message=FALSE, warning=FALSE}
+# load libraries
+if (!require("pacman")){
+  install.packages("pacman")
+}
+pacman::p_load(tidyverse, 
+               rio, 
+               psych, 
+               car,
+               lavaan,
+               sirt,
+               here)
+# set the current directory
+here::i_am('README.md')
+here::here()
+#memory.limit(size=56000) #you might have to increase your memory limit
+```
+
+
+# Data + variables          
+
+  Load clean data (from qualtrics). For codebook see: https://osf.io/gcek7/
+  
+```{r message=FALSE, warning=FALSE}
+# load data
+dat <- import(here("_cleandata/Final_COVIDiSTRESS_Vol2_cleaned.csv")) 
+
+# rename education levels
+dat$education[dat$education == "University degree (e.g., MA, MSc, BA, BSc)"] <- "University degree"
+dat$education[dat$education == "Some University or equivalent \r\n(still ongoing, or completed a module or more, but did not graduate)"] <- "Some University"
+```  
+
+* descriptive statitics
+* filter out language N < 100
+* gender, age, education, alpha?
+```{r message=FALSE, warning=FALSE}
+# language N ≥ 100 only
+# at least one of two scales shall be completed
+# variable names
+var.anti <- c('antiexpert_1','antiexpert_2','antiexpert_3')
+var.consp <- c('conspirational_think_1','conspirational_think_2',
+          'conspirational_think_3','conspirational_think_4')
+
+dat$include.anti <- rowSums(is.na(dat[,c(var.anti)]))
+dat$include.consp <- rowSums(is.na(dat[,var.consp]))
+dat$include <- (dat$include.anti * dat$include.consp)==0
+
+# drop missing cases
+dat <- dat[dat$include,]
+
+table(dat$UserLanguage)
+# shall be >= 100
+# extract 24 languages where N >= 100
+n.langs <- table(dat$UserLanguage)
+list.langs <- labels(n.langs)[[1]]
+langs.include <- list.langs[n.langs>=100]
+n.include <- n.langs[n.langs>=100]
+
+
+# extract data
+for (i in 1:length(langs.include)){
+  if (i == 1){
+    dat_mi <- dat[dat$UserLanguage == langs.include[i],]
+  }else{
+    current <- dat[dat$UserLanguage == langs.include[i],]
+    dat_mi <- rbind(dat_mi,current)
+  }
+}
+
+# included languages
+table(dat_mi$UserLanguage)
+length(table(dat_mi$UserLanguage))
+```  
+
+* descriptive stats
+* demographics
+```{r message=FALSE, warning=FALSE}
+
+# gender table
+table.gender <- data.matrix(table(dat_mi$UserLanguage,dat_mi$gender))/
+  rowSums(data.matrix(table(dat_mi$UserLanguage,dat_mi$gender)))
+
+# age table (M, SD)
+table.age <- matrix(nrow=length(langs.include),ncol = 2)
+for (i in 1: length(langs.include)){
+  table.age[i,1] <- mean(dat_mi[dat_mi$UserLanguage==langs.include[i],'age'],na.rm=T)
+  table.age[i,2] <- sd(dat_mi[dat_mi$UserLanguage==langs.include[i],'age'],na.rm=T)
+}
+rownames(table.age) <- langs.include
+colnames(table.age) <- c('age_M','age_SD')
+
+# education
+table.education <- data.matrix(table(dat_mi$UserLanguage,dat_mi$education))/
+  rowSums(data.matrix(table(dat_mi$UserLanguage,dat_mi$education)))
+colnames(table.education)<-c('None','Doctorate','Some univ.','Univ.',
+                             '≥ 12yrs','≥ 6yrs','≥ 9yrs')
+
+# merge
+Table <- cbind(table.gender,table.age,table.education)
+# save
+write.csv(Table,'demographics.csv')
+```
