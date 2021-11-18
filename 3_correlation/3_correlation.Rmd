@@ -60,15 +60,9 @@ load(here('2_antiexpert/2_antiexpert.Rdata'))
 dat_cor<- dat %>% dplyr::select(UserLanguage, #subset df
                         contains("antiexpert"),
                         contains("conspirational_think"),
-                        contains("vaccine_midneutral"),
-                        contains("compliance"),
-                        contains('misperception'),
+                        contains("trust"),
                         -contains("NAppl"))
 
-# calc misperception mean
-dat_cor$misperception_m <- with(dat_cor, rowMeans(dat %>% dplyr::select(
-                            contains('misperception')
-                            ),na.rm=T))
 ```
 
 * do measurement alignment
@@ -127,9 +121,9 @@ for (i in 1:length(langs.include)){
 * see correlation
 ```{r message=FALSE, warning=FALSE}
 # defined variables
-variables.cor <- c('consp','anti','misperception_m','vaccine_midneutral',
-                   'compliance_1','compliance_2','compliance_3','compliance_4',
-                   'compliance_5','compliance_6','compliance_7')
+variables.cor <- c('consp','anti','trust_1','trust_2',
+                   'trust_3','trust_4','trust_5','trust_6',
+                   'trust_7')
 
 # frequentist correlation
 psych::corr.test(data.aligned[,variables.cor])

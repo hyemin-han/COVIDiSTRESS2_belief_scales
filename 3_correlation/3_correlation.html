@@ -214,15 +214,8 @@ load(here(&#39;2_antiexpert/2_antiexpert.Rdata&#39;))</code></pre>
 dat_cor&lt;- dat %&gt;% dplyr::select(UserLanguage, #subset df
                         contains(&quot;antiexpert&quot;),
                         contains(&quot;conspirational_think&quot;),
-                        contains(&quot;vaccine_midneutral&quot;),
-                        contains(&quot;compliance&quot;),
-                        contains(&#39;misperception&#39;),
-                        -contains(&quot;NAppl&quot;))
-
-# calc misperception mean
-dat_cor$misperception_m &lt;- with(dat_cor, rowMeans(dat %&gt;% dplyr::select(
-                            contains(&#39;misperception&#39;)
-                            ),na.rm=T))</code></pre>
+                        contains(&quot;trust&quot;),
+                        -contains(&quot;NAppl&quot;))</code></pre>
 <ul>
 <li>do measurement alignment</li>
 </ul>
@@ -278,124 +271,46 @@ for (i in 1:length(langs.include)){
 <li>see correlation</li>
 </ul>
 <pre class="r"><code># defined variables
-variables.cor &lt;- c(&#39;consp&#39;,&#39;anti&#39;,&#39;misperception_m&#39;,&#39;vaccine_midneutral&#39;,
-                   &#39;compliance_1&#39;,&#39;compliance_2&#39;,&#39;compliance_3&#39;,&#39;compliance_4&#39;,
-                   &#39;compliance_5&#39;,&#39;compliance_6&#39;,&#39;compliance_7&#39;)
+variables.cor &lt;- c(&#39;consp&#39;,&#39;anti&#39;,&#39;trust_1&#39;,&#39;trust_2&#39;,
+                   &#39;trust_3&#39;,&#39;trust_4&#39;,&#39;trust_5&#39;,&#39;trust_6&#39;,
+                   &#39;trust_7&#39;)
 
 # frequentist correlation
 psych::corr.test(data.aligned[,variables.cor])</code></pre>
 <pre><code>## Call:psych::corr.test(x = data.aligned[, variables.cor])
 ## Correlation matrix 
-##                    consp  anti misperception_m vaccine_midneutral compliance_1
-## consp               1.00  0.45            0.45              -0.36        -0.11
-## anti                0.45  1.00            0.32              -0.37        -0.12
-## misperception_m     0.45  0.32            1.00              -0.25        -0.03
-## vaccine_midneutral -0.36 -0.37           -0.25               1.00         0.17
-## compliance_1       -0.11 -0.12           -0.03               0.17         1.00
-## compliance_2       -0.17 -0.20           -0.11               0.40         0.36
-## compliance_3        0.08  0.02           -0.03               0.29         0.22
-## compliance_4       -0.11 -0.05           -0.05               0.28         0.36
-## compliance_5       -0.01 -0.01           -0.03               0.26         0.25
-## compliance_6       -0.10 -0.13           -0.03               0.20         0.26
-## compliance_7       -0.02 -0.04            0.03              -0.01        -0.04
-##                    compliance_2 compliance_3 compliance_4 compliance_5
-## consp                     -0.17         0.08        -0.11        -0.01
-## anti                      -0.20         0.02        -0.05        -0.01
-## misperception_m           -0.11        -0.03        -0.05        -0.03
-## vaccine_midneutral         0.40         0.29         0.28         0.26
-## compliance_1               0.36         0.22         0.36         0.25
-## compliance_2               1.00         0.51         0.42         0.37
-## compliance_3               0.51         1.00         0.43         0.53
-## compliance_4               0.42         0.43         1.00         0.55
-## compliance_5               0.37         0.53         0.55         1.00
-## compliance_6               0.31         0.21         0.38         0.34
-## compliance_7               0.01        -0.13        -0.13        -0.27
-##                    compliance_6 compliance_7
-## consp                     -0.10        -0.02
-## anti                      -0.13        -0.04
-## misperception_m           -0.03         0.03
-## vaccine_midneutral         0.20        -0.01
-## compliance_1               0.26        -0.04
-## compliance_2               0.31         0.01
-## compliance_3               0.21        -0.13
-## compliance_4               0.38        -0.13
-## compliance_5               0.34        -0.27
-## compliance_6               1.00         0.08
-## compliance_7               0.08         1.00
+##         consp  anti trust_1 trust_2 trust_3 trust_4 trust_5 trust_6 trust_7
+## consp    1.00  0.45   -0.44   -0.40   -0.42   -0.39   -0.37   -0.40   -0.40
+## anti     0.45  1.00   -0.17   -0.18   -0.20   -0.26   -0.31   -0.17   -0.41
+## trust_1 -0.44 -0.17    1.00    0.70    0.74    0.57    0.43    0.79    0.39
+## trust_2 -0.40 -0.18    0.70    1.00    0.76    0.66    0.38    0.61    0.39
+## trust_3 -0.42 -0.20    0.74    0.76    1.00    0.69    0.48    0.67    0.47
+## trust_4 -0.39 -0.26    0.57    0.66    0.69    1.00    0.50    0.57    0.55
+## trust_5 -0.37 -0.31    0.43    0.38    0.48    0.50    1.00    0.46    0.61
+## trust_6 -0.40 -0.17    0.79    0.61    0.67    0.57    0.46    1.00    0.46
+## trust_7 -0.40 -0.41    0.39    0.39    0.47    0.55    0.61    0.46    1.00
 ## Sample Size 
-##                                misperception_m vaccine_midneutral compliance_1
-##                    12143 11978           12143              12133        12098
-##                    11978 12096           12095              12087        12052
-## misperception_m    12143 12095           12280              12270        12233
-## vaccine_midneutral 12133 12087           12270              14284        14219
-## compliance_1       12098 12052           12233              14219        14432
-## compliance_2       12057 12011           12193              14171        14334
-## compliance_3       12014 11969           12150              14129        14293
-## compliance_4       12073 12028           12209              14190        14353
-## compliance_5       12036 11995           12171              14155        14321
-## compliance_6        9532  9490            9648              11402        11530
-## compliance_7       11883 11841           12015              13979        14136
-##                    compliance_2 compliance_3 compliance_4 compliance_5
-##                           12057        12014        12073        12036
-##                           12011        11969        12028        11995
-## misperception_m           12193        12150        12209        12171
-## vaccine_midneutral        14171        14129        14190        14155
-## compliance_1              14334        14293        14353        14321
-## compliance_2              14382        14271        14321        14283
-## compliance_3              14271        14342        14283        14263
-## compliance_4              14321        14283        14403        14310
-## compliance_5              14283        14263        14310        14366
-## compliance_6              11513        11509        11530        11529
-## compliance_7              14098        14073        14126        14107
-##                    compliance_6 compliance_7
-##                            9532        11883
-##                            9490        11841
-## misperception_m            9648        12015
-## vaccine_midneutral        11402        13979
-## compliance_1              11530        14136
-## compliance_2              11513        14098
-## compliance_3              11509        14073
-## compliance_4              11530        14126
-## compliance_5              11529        14107
-## compliance_6              11576        11472
-## compliance_7              11472        14188
+##                     trust_1 trust_2 trust_3 trust_4 trust_5 trust_6 trust_7
+##         12143 11978   12107   12103   12104   12112   12110   12104   12093
+##         11978 12096   12061   12055   12056   12065   12062   12058   12046
+## trust_1 12107 12061   14209   14161   14165   14172   14169   14164   14147
+## trust_2 12103 12055   14161   14188   14152   14163   14154   14150   14134
+## trust_3 12104 12056   14165   14152   14191   14163   14158   14155   14137
+## trust_4 12112 12065   14172   14163   14163   14200   14168   14165   14145
+## trust_5 12110 12062   14169   14154   14158   14168   14200   14165   14150
+## trust_6 12104 12058   14164   14150   14155   14165   14165   14191   14154
+## trust_7 12093 12046   14147   14134   14137   14145   14150   14154   14175
 ## Probability values (Entries above the diagonal are adjusted for multiple tests.) 
-##                    consp anti misperception_m vaccine_midneutral compliance_1
-## consp               0.00 0.00               0               0.00         0.00
-## anti                0.00 0.00               0               0.00         0.00
-## misperception_m     0.00 0.00               0               0.00         0.01
-## vaccine_midneutral  0.00 0.00               0               0.00         0.00
-## compliance_1        0.00 0.00               0               0.00         0.00
-## compliance_2        0.00 0.00               0               0.00         0.00
-## compliance_3        0.00 0.08               0               0.00         0.00
-## compliance_4        0.00 0.00               0               0.00         0.00
-## compliance_5        0.38 0.17               0               0.00         0.00
-## compliance_6        0.00 0.00               0               0.00         0.00
-## compliance_7        0.01 0.00               0               0.47         0.00
-##                    compliance_2 compliance_3 compliance_4 compliance_5
-## consp                      0.00         0.00            0         1.00
-## anti                       0.00         0.41            0         0.69
-## misperception_m            0.00         0.03            0         0.01
-## vaccine_midneutral         0.00         0.00            0         0.00
-## compliance_1               0.00         0.00            0         0.00
-## compliance_2               0.00         0.00            0         0.00
-## compliance_3               0.00         0.00            0         0.00
-## compliance_4               0.00         0.00            0         0.00
-## compliance_5               0.00         0.00            0         0.00
-## compliance_6               0.00         0.00            0         0.00
-## compliance_7               0.48         0.00            0         0.00
-##                    compliance_6 compliance_7
-## consp                      0.00         0.04
-## anti                       0.00         0.00
-## misperception_m            0.01         0.03
-## vaccine_midneutral         0.00         1.00
-## compliance_1               0.00         0.00
-## compliance_2               0.00         1.00
-## compliance_3               0.00         0.00
-## compliance_4               0.00         0.00
-## compliance_5               0.00         0.00
-## compliance_6               0.00         0.00
-## compliance_7               0.00         0.00
+##         consp anti trust_1 trust_2 trust_3 trust_4 trust_5 trust_6 trust_7
+## consp       0    0       0       0       0       0       0       0       0
+## anti        0    0       0       0       0       0       0       0       0
+## trust_1     0    0       0       0       0       0       0       0       0
+## trust_2     0    0       0       0       0       0       0       0       0
+## trust_3     0    0       0       0       0       0       0       0       0
+## trust_4     0    0       0       0       0       0       0       0       0
+## trust_5     0    0       0       0       0       0       0       0       0
+## trust_6     0    0       0       0       0       0       0       0       0
+## trust_7     0    0       0       0       0       0       0       0       0
 ## 
 ##  To see confidence intervals of the correlations, print with the short=FALSE option</code></pre>
 <pre class="r"><code># bayesian correlation
@@ -413,42 +328,26 @@ colnames(BFs)&lt;-variables.cor
 rownames(BFs)&lt;-variables.cor[1: length(variables.cor)]
 
 BFs</code></pre>
-<pre><code>##                    consp     anti misperception_m vaccine_midneutral
-## consp                 NA 1347.982       1394.4873           842.7811
-## anti                  NA       NA        634.0578           897.9115
-## misperception_m       NA       NA              NA           403.0875
-## vaccine_midneutral    NA       NA              NA                 NA
-## compliance_1          NA       NA              NA                 NA
-## compliance_2          NA       NA              NA                 NA
-## compliance_3          NA       NA              NA                 NA
-## compliance_4          NA       NA              NA                 NA
-## compliance_5          NA       NA              NA                 NA
-## compliance_6          NA       NA              NA                 NA
-## compliance_7          NA       NA              NA                 NA
-##                    compliance_1 compliance_2 compliance_3 compliance_4
-## consp                 65.607076    163.34996   30.1457431     65.49688
-## anti                  79.316183    248.15154   -2.3377729     12.67584
-## misperception_m        1.538172     74.88352    0.1620676     14.10135
-## vaccine_midneutral   216.626461   1205.35417  616.0327770    564.10594
-## compliance_1                 NA    972.22829  343.5566541   1003.82387
-## compliance_2                 NA           NA           NA   1402.16101
-## compliance_3                 NA           NA           NA   1466.46638
-## compliance_4                 NA           NA           NA           NA
-## compliance_5                 NA           NA           NA           NA
-## compliance_6                 NA           NA           NA           NA
-## compliance_7                 NA           NA           NA           NA
-##                    compliance_5 compliance_6 compliance_7
-## consp                 -3.455745     41.54034   -0.2623578
-## anti                  -2.907910     73.01543    4.6273070
-## misperception_m        1.815291      2.07465    0.3118239
-## vaccine_midneutral   481.397130    235.70927   -3.6624967
-## compliance_1         467.974214    404.97550    8.2683870
-## compliance_2        1071.139800    576.27396   -3.6780919
-## compliance_3                 NA    259.05166  111.6601928
-## compliance_4                 NA    898.22685  113.5217464
-## compliance_5                 NA    718.82327  520.7378439
-## compliance_6                 NA           NA   28.7368313
-## compliance_7                 NA           NA           NA</code></pre>
+<pre><code>##         consp     anti   trust_1   trust_2   trust_3  trust_4   trust_5
+## consp      NA 1347.982 1297.2093 1078.3627 1145.3644 983.1405  907.5150
+## anti       NA       NA  177.5905  198.6438  247.2173 412.7012  620.1591
+## trust_1    NA       NA        NA        NA        NA       NA 1406.7564
+## trust_2    NA       NA        NA        NA        NA       NA 1101.6737
+## trust_3    NA       NA        NA        NA        NA       NA        NA
+## trust_4    NA       NA        NA        NA        NA       NA        NA
+## trust_5    NA       NA        NA        NA        NA       NA        NA
+## trust_6    NA       NA        NA        NA        NA       NA        NA
+## trust_7    NA       NA        NA        NA        NA       NA        NA
+##           trust_6  trust_7
+## consp   1040.7921 1067.028
+## anti     183.1007 1113.109
+## trust_1        NA 1169.180
+## trust_2        NA 1187.886
+## trust_3        NA       NA
+## trust_4        NA       NA
+## trust_5        NA       NA
+## trust_6        NA       NA
+## trust_7        NA       NA</code></pre>
 </div>
 
 
