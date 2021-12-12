@@ -335,6 +335,178 @@ mod2 &lt;- invariance.alignment(lambda = par$lambda, nu =
 mod2$es.invariance[&#39;R2&#39;,]</code></pre>
 <pre><code>##   loadings intercepts 
 ##  0.8496026  0.9876102</code></pre>
+<pre class="r"><code># do itemwise test
+# use parameters by Muthens .5 .5
+cmod2&lt;-invariance_alignment_constraints(mod2,.5,.5)
+summary(cmod2)</code></pre>
+<pre><code>## -----------------------------------------------------------------
+## sirt 3.10-118 (2021-09-22 17:45:34) 
+## R version 4.1.1 (2021-08-10) x86_64, darwin17.0 | nodename=edu-2016-036.local | login=root 
+## 
+## Call:
+## invariance_alignment_constraints(model = mod2, lambda_parm_tol = 0.5, 
+##     nu_parm_tol = 0.5)
+## 
+## Invariance Alignment with Post-Hoc Item Parameter Constraints
+## 
+## Optimization Function Value = 5.294 
+## Optimizer = optim 
+## Fixed = FALSE 
+## Converged = TRUE 
+## Alignment Power Values = 0.25 0.25 
+## Alignment Scale Values = 0.2 0.4 
+## Epsilon Value = 0.001 
+## Optimization method meth = 1 
+## -----------------------------------------------------------------
+## Alignment Results Lambda Parameters 
+## 
+## Parameter tolerance value = 0.5 
+## Total number of items = 72 
+## Number of unique item parameters = 8 
+## Percentage of noninvariance item parameters = 6.9 %
+## 
+## Unique item parameters per item
+## antiexpert_1 antiexpert_2 antiexpert_3 
+##            2            2            1 
+## 
+## Unique item parameters per group
+##    BG    CS    DE    EN ES-CO ES-CR ES-EC ES-ES  ES-G ES-GU ES-HN    ET    FI 
+##     0     0     0     0     0     1     0     0     0     0     0     0     0 
+##    IT    JA    NO    PT PT-BR    RU    SK    SV    TR    UK  ZH-T 
+##     0     0     0     1     0     0     0     0     0     2     1 
+## 
+## Joint item parameters
+## antiexpert_1 antiexpert_2 antiexpert_3 
+##        0.953        0.932        0.829 
+## 
+## Estimated item parameters
+##       antiexpert_1 antiexpert_2 antiexpert_3
+## BG           0.953        0.932        0.829
+## CS           0.953        0.932        0.829
+## DE           0.953        0.932        0.829
+## EN           0.953        0.932        0.829
+## ES-CO        0.953        0.932        0.829
+## ES-CR        1.722        0.932        0.829
+## ES-EC        0.953        0.932        0.829
+## ES-ES        0.953        0.932        0.829
+## ES-G         0.953        0.932        0.829
+## ES-GU        0.953        0.932        0.829
+## ES-HN        0.953        0.932        0.829
+## ET           0.953        0.932        0.829
+## FI           0.953        0.932        0.829
+## IT           0.953        0.932        0.829
+## JA           0.953        0.932        0.829
+## NO           0.953        0.932        0.829
+## PT           0.953        1.528        0.829
+## PT-BR        0.953        0.932        0.829
+## RU           0.953        0.932        0.829
+## SK           0.953        0.932        0.829
+## SV           0.953        0.932        0.829
+## TR           0.953        0.932        0.829
+## UK           0.164        0.932        0.073
+## ZH-T         0.953        2.313        0.829
+## 
+## Estimated DIF effects
+##       antiexpert_1 antiexpert_2 antiexpert_3
+## BG           0.000        0.000        0.000
+## CS           0.000        0.000        0.000
+## DE           0.000        0.000        0.000
+## EN           0.000        0.000        0.000
+## ES-CO        0.000        0.000        0.000
+## ES-CR        0.769        0.000        0.000
+## ES-EC        0.000        0.000        0.000
+## ES-ES        0.000        0.000        0.000
+## ES-G         0.000        0.000        0.000
+## ES-GU        0.000        0.000        0.000
+## ES-HN        0.000        0.000        0.000
+## ET           0.000        0.000        0.000
+## FI           0.000        0.000        0.000
+## IT           0.000        0.000        0.000
+## JA           0.000        0.000        0.000
+## NO           0.000        0.000        0.000
+## PT           0.000        0.596        0.000
+## PT-BR        0.000        0.000        0.000
+## RU           0.000        0.000        0.000
+## SK           0.000        0.000        0.000
+## SV           0.000        0.000        0.000
+## TR           0.000        0.000        0.000
+## UK          -0.789        0.000       -0.756
+## ZH-T         0.000        1.382        0.000
+## -----------------------------------------------------------------
+## Alignment Results Nu Parameters 
+## 
+## Parameter tolerance value = 0.5 
+## Total number of items = 72 
+## Number of unique item parameters = 17 
+## Percentage of noninvariance item parameters = 19.4 %
+## 
+## Unique item parameters per item
+## antiexpert_1 antiexpert_2 antiexpert_3 
+##            3            4            7 
+## 
+## Unique item parameters per group
+##    BG    CS    DE    EN ES-CO ES-CR ES-EC ES-ES  ES-G ES-GU ES-HN    ET    FI 
+##     0     1     0     0     0     2     0     0     1     0     0     1     1 
+##    IT    JA    NO    PT PT-BR    RU    SK    SV    TR    UK  ZH-T 
+##     0     1     0     1     1     0     0     1     2     2     0 
+## 
+## Joint item parameters
+## antiexpert_1 antiexpert_2 antiexpert_3 
+##        4.228        3.120        2.949 
+## 
+## Estimated item parameters
+##       antiexpert_1 antiexpert_2 antiexpert_3
+## BG           4.228        3.120        2.949
+## CS           4.228        3.120        3.486
+## DE           4.228        3.120        2.949
+## EN           4.228        3.120        2.949
+## ES-CO        4.228        3.120        2.949
+## ES-CR        4.228        2.237        2.393
+## ES-EC        4.228        3.120        2.949
+## ES-ES        4.228        3.120        2.949
+## ES-G         4.228        2.592        2.949
+## ES-GU        4.228        3.120        2.949
+## ES-HN        4.228        3.120        2.949
+## ET           4.228        3.120        2.393
+## FI           4.228        3.677        2.949
+## IT           4.228        3.120        2.949
+## JA           4.228        3.120        3.670
+## NO           4.228        3.120        2.949
+## PT           4.770        3.120        2.949
+## PT-BR        4.228        3.120        2.349
+## RU           4.228        3.120        2.949
+## SK           4.228        3.120        2.949
+## SV           4.228        3.120        3.851
+## TR           4.801        3.120        2.195
+## UK           3.714        4.698        2.949
+## ZH-T         4.228        3.120        2.949
+## 
+## Estimated DIF effects
+##       antiexpert_1 antiexpert_2 antiexpert_3
+## BG           0.000        0.000        0.000
+## CS           0.000        0.000        0.537
+## DE           0.000        0.000        0.000
+## EN           0.000        0.000        0.000
+## ES-CO        0.000        0.000        0.000
+## ES-CR        0.000       -0.883       -0.556
+## ES-EC        0.000        0.000        0.000
+## ES-ES        0.000        0.000        0.000
+## ES-G         0.000       -0.529        0.000
+## ES-GU        0.000        0.000        0.000
+## ES-HN        0.000        0.000        0.000
+## ET           0.000        0.000       -0.556
+## FI           0.000        0.556        0.000
+## IT           0.000        0.000        0.000
+## JA           0.000        0.000        0.720
+## NO           0.000        0.000        0.000
+## PT           0.542        0.000        0.000
+## PT-BR        0.000        0.000       -0.600
+## RU           0.000        0.000        0.000
+## SK           0.000        0.000        0.000
+## SV           0.000        0.000        0.901
+## TR           0.573        0.000       -0.755
+## UK          -0.514        1.578        0.000
+## ZH-T         0.000        0.000        0.000</code></pre>
 <ul>
 <li>save result</li>
 <li>mod1 will be used for further correlational analysis</li>

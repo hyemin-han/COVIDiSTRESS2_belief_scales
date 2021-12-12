@@ -127,6 +127,12 @@ mod1 <- invariance.alignment(lambda = par$lambda, nu =
         par$nu, align.scale = c(0.2, 0.4), align.pow = c(0.25, 0.25))
 # test performance
 mod1$es.invariance['R2',]
+
+
+# do itemwise test
+# use parameters by Muthens .5 .5
+cmod1<-invariance_alignment_constraints(mod1,.5,.5)
+summary(cmod1)
 ```
 * save result
 * mod1 will be used for further correlational analysis
