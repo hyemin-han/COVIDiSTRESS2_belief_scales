@@ -114,6 +114,8 @@ fitMeasures(fit.scalar)[indices]
 fitMeasures(fit.scalar)[indices] - fitMeasures(fit.metric)[indices]
 
 # unacceptable. alignment necessary.
+
+# try scalar invariance
 ```
 * configural invariance was not achieve despite good consistency
 * try measurement alignment

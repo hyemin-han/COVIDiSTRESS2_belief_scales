@@ -103,6 +103,14 @@ fitMeasures(fit.metric)[indices]
 # see increase
 fitMeasures(fit.metric)[indices]-fitMeasures(fit.configural)[indices]
 # not good. measurement alignment is needed
+
+# scalar test
+fit.scalar<- cfa(cfa.model, dat_mi, estimator = 'DWLS', group='UserLanguage',
+                  group.equal=c('loadings','intercepts'))
+fitMeasures(fit.scalar)[indices]
+
+# difference
+fitMeasures(fit.scalar)[indices] - fitMeasures(fit.metric)[indices]
 ```
 * configural invariance was not achieve despite good consistency
 * try measurement alignment

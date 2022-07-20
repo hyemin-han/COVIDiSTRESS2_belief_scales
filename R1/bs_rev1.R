@@ -97,7 +97,7 @@ for (i in 1:length(langs.include)){
 
 
 # randomly pickup 1/2
-set.seed(12345)
+set.seed(as.numeric(Sys.time()))
 picked <- sample(seq_len(nrow(dat_mi)),size = floor(.5*nrow(dat_mi)))
 dat.train <- dat_mi[picked,]
 dat.val <- dat_mi[-picked,]
@@ -178,3 +178,14 @@ load(here('2_antiexpert/2_antiexpert.Rdata'))
 
 mod2$lambda.aligned
 
+
+### correlation
+
+# CTS
+cts.train <- as.numeric(mod1.consp.train$lambda.aligned)
+cts.val <- as.numeric(mod1.consp.val$lambda.aligned)
+corr.test(cts.train,cts.val,method='spearman')
+
+aes.train <- as.numeric(mod1.anti.train$lambda.aligned)
+aes.val <- as.numeric(mod1.anti.val$lambda.aligned)
+corr.test(aes.train,aes.val,method='spearman')
